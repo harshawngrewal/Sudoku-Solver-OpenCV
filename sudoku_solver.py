@@ -1,3 +1,4 @@
+from typing import Any
 from GUI import Grid
 import time
 import cv2
@@ -18,6 +19,36 @@ SUDOKU_BOARD = [['-', '-', '-', '-', '-', '-', '-', '-', '-'],
                 ['-', '-', '-', '-', '-', '-', '-', '-', '-'],
                 ['-', '-', '-', '-', '-', '-', '-', '-', '-']]
 
+# function that handles the trackbar
+def nothing(x) -> None:
+    pass
+
+
+def take_picture(capture) -> Any:
+    """
+    Function which displays a trackbar and keeps going till either user presses
+    X on window or user slides trackbar value to 1. I have removed
+    this feature due to inconsitencies
+    """
+    cv2.namedWindow('image')
+    switch = '0: OFF\n 1 : ON'
+    cv2.createTrackbar(switch, 'image', 0, 1, nothing)
+    # cv2.setTrackbarPos(switch, "image", 0)
+
+    while True:
+        _, frame = capture.read()
+        # font = cv2.FONT_HERSHEY_COMPLEX
+        # cv2.putText(frame, message, (10, 500), font, 2, (0, 0, 0))
+        cv2.imshow('image', frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            capture.release()
+            cv2.destroyAllWindows()
+
+        s = cv2.getTrackbarPos(switch, 'image')
+        if s == 1:
+            break
+    cv2.destroyWindow("image")
+    return frame
 
 
 def read_board() -> None:
@@ -27,12 +58,11 @@ def read_board() -> None:
     application since all the numbers have been read
     """
     cap = cv2.VideoCapture("/dev/video0")
-    # _, frame = cap.read()
-    # cv2.imshow('image', frame)
 
     while True:
-        _, frame = cap.read()
-        # frame = take_picture(cap, message) # I have removed the pic feature
+        # _, frame = cap.read()
+        frame = take_picture(cap) # I have removed the pic feature
+        cv2.imshow('frame', frame)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         canny = cv2.adaptiveThreshold(gray, 255, \
                                       cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
@@ -57,7 +87,6 @@ def read_board() -> None:
             if res:
                 if _display_board():
                     break
-        cv2.imshow('frame', frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -173,7 +202,7 @@ def _display_board() -> bool:
     """
     grid = Grid(SUDOKU_BOARD)
     res = grid.create_board()
-    print(res)
+    # print(res)
     if res is False:
         return False
     return True
