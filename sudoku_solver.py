@@ -1,6 +1,5 @@
 from typing import Any
 from GUI import Grid
-import time
 import cv2
 import imutils
 from imutils.perspective import four_point_transform
@@ -19,6 +18,7 @@ SUDOKU_BOARD = [['-', '-', '-', '-', '-', '-', '-', '-', '-'],
                 ['-', '-', '-', '-', '-', '-', '-', '-', '-'],
                 ['-', '-', '-', '-', '-', '-', '-', '-', '-']]
 
+
 # function that handles the trackbar
 def nothing(x) -> None:
     pass
@@ -28,7 +28,7 @@ def take_picture(capture) -> Any:
     """
     Function which displays a trackbar and keeps going till either user presses
     X on window or user slides trackbar value to 1. I have removed
-    this feature due to inconsitencies
+    this feature due to inconsistencies
     """
     cv2.namedWindow('image')
     switch = '0: OFF\n 1 : ON'
@@ -60,8 +60,8 @@ def read_board() -> None:
     cap = cv2.VideoCapture("/dev/video0")
 
     while True:
-        # _, frame = cap.read()
-        frame = take_picture(cap) # I have removed the pic feature
+        _, frame = cap.read()
+        # frame = take_picture(cap) # I have removed the pic feature
         cv2.imshow('frame', frame)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         canny = cv2.adaptiveThreshold(gray, 255, \
@@ -77,17 +77,19 @@ def read_board() -> None:
         contours = imutils.grab_contours(contours)
 
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
-        peri = cv2.arcLength(contours[0], True)
-        approx = cv2.approxPolyDP(contours[0], 0.01 * peri, True)
-        if cv2.contourArea(contours[0]) > 2200 and len(approx) == 4:
-            # print('checkpoint2')
-            board = four_point_transform(img, approx.reshape(4, 2))
-            cv2.imwrite('outbox.png', board)
-            res = _extract_and_apply(board)
-            if res:
-                if _display_board():
-                    break
+        if len(contours) >= 1:
+            peri = cv2.arcLength(contours[0], True)
+            approx = cv2.approxPolyDP(contours[0], 0.01 * peri, True)
+            if cv2.contourArea(contours[0]) > 2200 and len(approx) == 4:
+                # print('checkpoint2')
+                board = four_point_transform(img, approx.reshape(4, 2))
+                cv2.imwrite('outbox.png', board)
+                res = _extract_and_apply(board)
+                if res:
+                    if _display_board():
+                        break
 
+        cv2.imshow('frame', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
@@ -159,8 +161,8 @@ def _extract_and_apply(board) -> bool:
             cv2.drawContours(mask, [c], -1, (255, 255, 255), -1)
             # will end up showing the one square on mask
             result = cv2.bitwise_and(image, mask)
-            cv2.imwrite('outbox.png', result)
-            result[mask == 0] = 255 # make everything on board also white
+            # cv2.imwrite('outbox.png', result)
+            result[mask == 0] = 255  # make everything on board also white
             number = get_num(c, result)
 
             SUDOKU_BOARD[i][n] = number if number else ""
@@ -180,12 +182,13 @@ def get_num(contour, img) -> Optional[int]:
     # """
     x, y, w, h = cv2.boundingRect(contour)
     square = img[y + 3: y + h - 3, x + 3: x + w - 3]
-    gray = cv2.cvtColor(square, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.adaptiveThreshold(gray, 255,\
-                                   cv2.ADAPTIVE_THRESH_GAUSSIAN_C,\
-                                   cv2.THRESH_BINARY, 11, 7)
+    img = cv2.resize(square, (0, 0), fx=2, fy=2)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    thresh = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 7)
+    cv2.imwrite("output.png", gray)
+
     ### adding config parameter will take it as raw text ###
-    res = pytesseract.image_to_string(thresh, config="--psm 13")
+    res = pytesseract.image_to_string(thresh, lang="eng", config='--psm 6')
     for ch in res:
         if 49 <= ord(ch) <= 57:
             # print(size)
@@ -195,7 +198,7 @@ def get_num(contour, img) -> Optional[int]:
 def _display_board() -> bool:
     """
     Using the list representation of the Sudoku board, display the board
-    using the class Grid which leverages pygame. This will also give the chance
+    using the Class 'Grid' which leverages pygame. This will also give the chance
     for the user to either auto complete the grid or if the grid was read wrong,
     a chance to re-read the grid. Thus return True iff the board was read
     right
@@ -209,16 +212,4 @@ def _display_board() -> bool:
 
 
 if __name__ == '__main__':
-    """
-    Notes: 
-    2021/01/05: Detecting 1s and 9s seems to be the only problem
-    
-    What to do: after the board is read, the user should be able to decide if
-    he/she wants to finish the board or try to read the board again since it may
-    have read the board wrong(
-    """
-    start = time.time()
     read_board()
-    print(time.time() - start)
-    # grid = Grid(CORRECT_BOARD)
-    # grid.create_board()
