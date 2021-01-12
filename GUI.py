@@ -74,9 +74,12 @@ class Grid:
                     break
             if self._read_again():
                 return False
-                run = False
             if self._button_pressed():
-                self.solveSudoku()
+                res = self.solveSudoku()
+                if res:
+                    print("the board is completed successfully")
+                else:
+                    print("an error occurred, read board again")
 
             display.fill((255, 255, 255))
             display.blit(img, (0, 30))
@@ -139,7 +142,7 @@ class Grid:
         return 0 < position[0] < 150 and 650 < position[1] < 670 and \
                1 in mouse_states
 
-    def solveSudoku(self) -> None:
+    def solveSudoku(self) -> bool:
         """
         Do not return anything, modify board in-place instead.
         """
@@ -160,6 +163,7 @@ class Grid:
 
             return False
         x = backtrack()
+        return x
 
     def _find_empty(self) -> Optional[Tuple[int, int]]:
         """
@@ -211,7 +215,7 @@ class Cell:
         """
         blits the given image onto the display/sudoku board
         """
-        self.img = pygame.image.load(r'images/basic numbers/{}.png'.format(self.number)) if self.number != '' else None
+        self.img = pygame.image.load(r'images/basic-numbers/{}.png'.format(self.number)) if self.number != '' else None
         if self.img:
             self.display.fill((255, 255, 255),
                               pygame.Rect(self.x, self.y, 40,
@@ -223,17 +227,3 @@ class Cell:
         Return True iff this cell is empty
         """
         return self.number == ''
-
-
-if __name__ == "__main__":
-    board = [['5', '3', '', '', '7', '', '', '', ''],
-                     ['6', '', '', '1', '9', '5', '', '', ''],
-                     ['', '9', '8', '', '', '', '', '6', ''],
-                     ['8', '', '', '', '6', '', '', '', '3'],
-                     ['4', '', '', '8', '', '3', '', '', '1'],
-                     ['7', '', '', '', '2', '', '', '', '6'],
-                     ['', '6', '', '', '', '', '2', '8', ''],
-                     ['', '', '', '4', '1', '9', '', '', '5'],
-                     ['', '', '', '', '8', '', '', '7', '9']]
-    grid = Grid(board)
-    grid.create_board()
