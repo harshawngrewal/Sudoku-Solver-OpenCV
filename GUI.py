@@ -215,7 +215,7 @@ class Cell:
         """
         blits the given image onto the display/sudoku board
         """
-        self.img = pygame.image.load(r'images/basic-numbers/{}.png'.format(self.number)) if self.number != '' else None
+        self.img = pygame.image.load(r'images/basic numbers/{}.png'.format(self.number)) if self.number != '' else None
         if self.img:
             self.display.fill((255, 255, 255),
                               pygame.Rect(self.x, self.y, 40,
