@@ -83,7 +83,6 @@ def read_board() -> None:
             if cv2.contourArea(contours[0]) > 2200 and len(approx) == 4:
                 # print('checkpoint2')
                 board = four_point_transform(img, approx.reshape(4, 2))
-                cv2.imwrite('outbox.png', board)
                 res = _extract_and_apply(board)
                 if res:
                     if _display_board():
@@ -161,7 +160,6 @@ def _extract_and_apply(board) -> bool:
             cv2.drawContours(mask, [c], -1, (255, 255, 255), -1)
             # will end up showing the one square on mask
             result = cv2.bitwise_and(image, mask)
-            # cv2.imwrite('outbox.png', result)
             result[mask == 0] = 255  # make everything on board also white
             number = get_num(c, result)
 
