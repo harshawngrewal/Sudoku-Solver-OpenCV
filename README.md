@@ -14,7 +14,7 @@
 6. Once it's done scanning the documents, click either finish it if the board was read correctly or read again. 
 ```
 ```
-
+https://www.youtube.com/watch?v=2aVMRgkW6Ic
 
 
 
