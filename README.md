@@ -10,7 +10,7 @@
 2. Open terminal and navigage to Sudoku-Solver-OpenCV
 3. into the terminal type pip install -r requirements.txt
 4. then type python sudoku_solver.py
-5. Hold the sudoku solver next to your webcam
+5. Hold the sudoku board next to your webcam
 6. Once it's done scanning the documents, click either finish it if the board was read correctly or read again. 
 ```
 ```
